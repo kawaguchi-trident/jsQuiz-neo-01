@@ -55,97 +55,106 @@ jobs:
           CHECK_RESULT: ${{ steps.check.outcome }}
           ATTEMPT_COUNT: ${{ steps.count.outputs.count }}
         with:
-          script: |
-            const fs = require('fs');
+          const fs = require('fs');
 
-            const studentId = process.env.STUDENT_ID;
-            const result = process.env.CHECK_RESULT;
-            const attempt = Number(process.env.ATTEMPT_COUNT || '1');
+          const studentId = process.env.STUDENT_ID;
+          const result = process.env.CHECK_RESULT;
+          const attempt = Number(process.env.ATTEMPT_COUNT || '1');
 
-            let detail = '';
+          let jqueryAnswer = '';
+          let vanillaAnswer = '';
 
-            try {
-              detail = fs.readFileSync('result.txt', 'utf8').trim();
-            } catch (error) {
-              detail = '判定ログを取得できませんでした。';
-            }
+          try {
+            jqueryAnswer = fs.readFileSync('.github/answers/01-jquery.js', 'utf8').trim();
+          } catch (error) {
+            jqueryAnswer = 'jQuery版の模範回答を読み込めませんでした。';
+          }
 
-            if (!detail) {
-              detail = 'エラー内容を取得できませんでした。';
-            }
+          try {
+            vanillaAnswer = fs.readFileSync('.github/answers/01-vanilla.js', 'utf8').trim();
+          } catch (error) {
+            vanillaAnswer = 'Vanilla JS版の模範回答を読み込めませんでした。';
+          }
 
-            const lines = detail
-              .split('\n')
-              .map((line) => line.trim())
-              .filter((line) => line !== '');
+          let detail = '';
 
-            const lastLine = lines.length > 0 ? lines[lines.length - 1] : detail;
+          try {
+            detail = fs.readFileSync('result.txt', 'utf8').trim();
+          } catch (error) {
+            detail = '判定ログを取得できませんでした。';
+          }
 
-            let hint = '';
+          if (!detail) {
+            detail = 'エラー内容を取得できませんでした。';
+          }
 
-            if (attempt === 1) {
+          const lines = detail
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => line !== '');
+
+          const lastLine = lines.length > 0 ? lines[lines.length - 1] : detail;
+
+          let hint = '';
+
+          if (attempt === 1) {
+            hint = 'クリックした色に応じて、#trident のクラスを正しく切り替えてください。';
+          } else if (attempt === 2) {
+            if (lastLine.includes('colorRed')) {
+              hint = '赤をクリックしたときに colorRed を付ける処理を確認してください。';
+            } else if (lastLine.includes('colorBlue')) {
+              hint = '青をクリックしたときに colorBlue を付ける処理を確認してください。';
+            } else if (lastLine.includes('colorOrange')) {
+              hint = 'オレンジをクリックしたときに colorOrange を付ける処理を確認してください。';
+            } else if (lastLine.includes('以外の色クラスが残っています')) {
+              hint = '前の色クラスが残らないように removeClass などで切り替えてください。';
+            } else if (lastLine.includes('要素が見つかりません')) {
+              hint = 'HTMLの構造を変更していないか確認してください。';
+            } else {
               hint = 'クリックした色に応じて、#trident のクラスを正しく切り替えてください。';
-            } else if (attempt === 2) {
-              if (lastLine.includes('colorRed')) {
-                hint = '赤をクリックしたときに colorRed を付ける処理を確認してください。';
-              } else if (lastLine.includes('colorBlue')) {
-                hint = '青をクリックしたときに colorBlue を付ける処理を確認してください。';
-              } else if (lastLine.includes('colorOrange')) {
-                hint = 'オレンジをクリックしたときに colorOrange を付ける処理を確認してください。';
-              } else if (lastLine.includes('以外の色クラスが残っています')) {
-                hint = '前の色クラスが残らないように removeClass などで切り替えてください。';
-              } else if (lastLine.includes('要素が見つかりません')) {
-                hint = 'HTMLの構造を変更していないか確認してください。';
-              } else {
-                hint = 'クリックした色に応じて、#trident のクラスを正しく切り替えてください。';
-              }
-            } else {
-              hint =
-                "模範回答:\n\n```js\n" +
-                "$('li.red').on('click', function() {\n" +
-                "  $('#trident').removeClass('colorBlue colorOrange').addClass('colorRed');\n" +
-                "});\n\n" +
-                "$('li.blue').on('click', function() {\n" +
-                "  $('#trident').removeClass('colorRed colorOrange').addClass('colorBlue');\n" +
-                "});\n\n" +
-                "$('li.orange').on('click', function() {\n" +
-                "  $('#trident').removeClass('colorRed colorBlue').addClass('colorOrange');\n" +
-                "});\n" +
-                "```";
             }
+          } else {
+            hint =
+              '### 模範回答（jQuery）\n\n```js\n' +
+              jqueryAnswer +
+              '\n```\n\n' +
+              '### 模範回答（Vanilla JS）\n\n```js\n' +
+              vanillaAnswer +
+              '\n```';
+          }
 
-            let body = '';
+          let body = '';
 
-            if (!studentId) {
-              body = '## 自動判定結果\n'
-                + '- 提出ファイルを確認できませんでした。';
-            } else if (result === 'success') {
-              body = '## 自動判定結果\n'
-                + '- 出席番号: ' + studentId + '\n'
-                + '- 判定: 合格\n'
-                + '- 動作確認を通過しました。';
-            } else if (attempt >= 3) {
-              body = '## 自動判定結果\n'
-                + '- 出席番号: ' + studentId + '\n'
-                + '- 判定: 不合格\n'
-                + '- 試行回数: ' + attempt + '回目\n'
-                + '- 詳細: ' + lastLine + '\n\n'
-                + hint;
-            } else {
-              body = '## 自動判定結果\n'
-                + '- 出席番号: ' + studentId + '\n'
-                + '- 判定: 不合格\n'
-                + '- 試行回数: ' + attempt + '回目\n'
-                + '- 詳細: ' + lastLine + '\n'
-                + '- ヒント: ' + hint;
-            }
+          if (!studentId) {
+            body = '## 自動判定結果\n'
+              + '- 提出ファイルを確認できませんでした。';
+          } else if (result === 'success') {
+            body = '## 自動判定結果\n'
+              + '- 出席番号: ' + studentId + '\n'
+              + '- 判定: 合格\n'
+              + '- 動作確認を通過しました。';
+          } else if (attempt >= 3) {
+            body = '## 自動判定結果\n'
+              + '- 出席番号: ' + studentId + '\n'
+              + '- 判定: 不合格\n'
+              + '- 試行回数: ' + attempt + '回目\n'
+              + '- 詳細: ' + lastLine + '\n\n'
+              + hint;
+          } else {
+            body = '## 自動判定結果\n'
+              + '- 出席番号: ' + studentId + '\n'
+              + '- 判定: 不合格\n'
+              + '- 試行回数: ' + attempt + '回目\n'
+              + '- 詳細: ' + lastLine + '\n'
+              + '- ヒント: ' + hint;
+          }
 
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
-            });
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: body
+          });
 
       - name: 不合格なら workflow を失敗にする
         if: steps.check.outcome == 'failure'
