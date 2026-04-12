@@ -42,17 +42,25 @@ jobs:
           node scripts/check.js ${{ steps.detect.outputs.student_id }} > result.txt 2>&1
         continue-on-error: true
 
+      - name: 試行回数を取得
+        id: count
+        run: |
+          COUNT=$(git rev-list --count origin/${{ github.base_ref }}..HEAD)
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
       - name: 判定結果をPRにコメント
         uses: actions/github-script@v7
         env:
           STUDENT_ID: ${{ steps.detect.outputs.student_id }}
           CHECK_RESULT: ${{ steps.check.outcome }}
+          ATTEMPT_COUNT: ${{ steps.count.outputs.count }}
         with:
           script: |
             const fs = require('fs');
 
             const studentId = process.env.STUDENT_ID;
             const result = process.env.CHECK_RESULT;
+            const attempt = Number(process.env.ATTEMPT_COUNT || '1');
 
             let detail = '';
 
@@ -73,18 +81,37 @@ jobs:
 
             const lastLine = lines.length > 0 ? lines[lines.length - 1] : detail;
 
-            let hint = 'クリックした色に応じて、#trident のクラスを正しく切り替えてください。';
+            let hint = '';
 
-            if (lastLine.includes('colorRed')) {
-              hint = '赤をクリックしたときに colorRed を付ける処理を確認してください。';
-            } else if (lastLine.includes('colorBlue')) {
-              hint = '青をクリックしたときに colorBlue を付ける処理を確認してください。';
-            } else if (lastLine.includes('colorOrange')) {
-              hint = 'オレンジをクリックしたときに colorOrange を付ける処理を確認してください。';
-            } else if (lastLine.includes('以外の色クラスが残っています')) {
-              hint = '前の色クラスが残らないように removeClass などで切り替えてください。';
-            } else if (lastLine.includes('要素が見つかりません')) {
-              hint = 'HTMLの構造を変更していないか確認してください。';
+            if (attempt === 1) {
+              hint = 'クリックした色に応じて、#trident のクラスを正しく切り替えてください。';
+            } else if (attempt === 2) {
+              if (lastLine.includes('colorRed')) {
+                hint = '赤をクリックしたときに colorRed を付ける処理を確認してください。';
+              } else if (lastLine.includes('colorBlue')) {
+                hint = '青をクリックしたときに colorBlue を付ける処理を確認してください。';
+              } else if (lastLine.includes('colorOrange')) {
+                hint = 'オレンジをクリックしたときに colorOrange を付ける処理を確認してください。';
+              } else if (lastLine.includes('以外の色クラスが残っています')) {
+                hint = '前の色クラスが残らないように removeClass などで切り替えてください。';
+              } else if (lastLine.includes('要素が見つかりません')) {
+                hint = 'HTMLの構造を変更していないか確認してください。';
+              } else {
+                hint = 'クリックした色に応じて、#trident のクラスを正しく切り替えてください。';
+              }
+            } else {
+              hint =
+                "模範回答:\n\n```js\n" +
+                "$('li.red').on('click', function() {\n" +
+                "  $('#trident').removeClass('colorBlue colorOrange').addClass('colorRed');\n" +
+                "});\n\n" +
+                "$('li.blue').on('click', function() {\n" +
+                "  $('#trident').removeClass('colorRed colorOrange').addClass('colorBlue');\n" +
+                "});\n\n" +
+                "$('li.orange').on('click', function() {\n" +
+                "  $('#trident').removeClass('colorRed colorBlue').addClass('colorOrange');\n" +
+                "});\n" +
+                "```";
             }
 
             let body = '';
@@ -97,10 +124,18 @@ jobs:
                 + '- 出席番号: ' + studentId + '\n'
                 + '- 判定: 合格\n'
                 + '- 動作確認を通過しました。';
+            } else if (attempt >= 3) {
+              body = '## 自動判定結果\n'
+                + '- 出席番号: ' + studentId + '\n'
+                + '- 判定: 不合格\n'
+                + '- 試行回数: ' + attempt + '回目\n'
+                + '- 詳細: ' + lastLine + '\n\n'
+                + hint;
             } else {
               body = '## 自動判定結果\n'
                 + '- 出席番号: ' + studentId + '\n'
                 + '- 判定: 不合格\n'
+                + '- 試行回数: ' + attempt + '回目\n'
                 + '- 詳細: ' + lastLine + '\n'
                 + '- ヒント: ' + hint;
             }
