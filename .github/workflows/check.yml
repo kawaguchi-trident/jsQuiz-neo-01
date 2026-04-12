@@ -1,0 +1,76 @@
+name: Check Quiz 01
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: リポジトリを取得
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node.js を準備
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 依存をインストール
+        run: npm ci
+
+      - name: 出席番号を検出
+        id: detect
+        run: |
+          STUDENT_ID=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^students/[0-9][0-9]/index\.html$' | head -n 1 | cut -d '/' -f 2)
+          echo "student_id=$STUDENT_ID" >> $GITHUB_OUTPUT
+
+      - name: 出席番号を表示
+        run: echo "student_id=${{ steps.detect.outputs.student_id }}"
+
+      - name: 自動判定を実行
+        id: check
+        run: npm run check -- ${{ steps.detect.outputs.student_id }}
+        continue-on-error: true
+
+      - name: 判定結果をPRにコメント
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const studentId = '${{ steps.detect.outputs.student_id }}';
+            const result = '${{ steps.check.outcome }}';
+
+            let body = '';
+
+            if (!studentId) {
+              body = '## 自動判定結果\n提出ファイルを確認できませんでした。';
+            } else if (result === 'success') {
+              body = `## 自動判定結果
+- 出席番号: ${studentId}
+- 判定: 合格
+- 動作確認を通過しました。`;
+            } else {
+              body = `## 自動判定結果
+- 出席番号: ${studentId}
+- 判定: 不合格
+- Actions のログを確認して修正してください。`;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: 不合格なら workflow を失敗にする
+        if: steps.check.outcome == 'failure'
+        run: exit 1
