@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "check": "node scripts/check.js"
+    "check": "node .github/scripts/check.js"
   },
   "repository": {
     "type": "git",

@@ -39,7 +39,7 @@ jobs:
       - name: 自動判定を実行
         id: check
         run: |
-          node scripts/check.js ${{ steps.detect.outputs.student_id }} > result.txt 2>&1
+          node .github/scripts/check.js ${{ steps.detect.outputs.student_id }} > result.txt 2>&1
         continue-on-error: true
 
       - name: 試行回数を取得
