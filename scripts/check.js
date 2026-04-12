@@ -68,6 +68,6 @@ try {
 
   console.log('OK');
 } catch (error) {
-  console.error(error.message);
+  console.error(error.message.trim());
   process.exit(1);
 }
