@@ -39,7 +39,7 @@ jobs:
       - name: 自動判定を実行
         id: check
         run: |
-          npm run check -- ${{ steps.detect.outputs.student_id }} > result.txt 2>&1
+          node scripts/check.js ${{ steps.detect.outputs.student_id }} > result.txt 2>&1
         continue-on-error: true
 
       - name: 判定結果をPRにコメント
@@ -60,6 +60,10 @@ jobs:
               detail = fs.readFileSync('result.txt', 'utf8').trim();
             } catch (error) {
               detail = '判定ログを取得できませんでした。';
+            }
+
+            if (!detail) {
+              detail = 'エラー内容を取得できませんでした。';
             }
 
             let body = '';
