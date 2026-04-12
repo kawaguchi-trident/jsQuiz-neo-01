@@ -1,0 +1,16 @@
+{
+  "name": "jsquiz-neo-01",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node scripts/check.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github_kawaguchi-trident:kawaguchi-trident/jsQuiz-neo-01.git"
+  },
+  "dependencies": {
+    "jquery": "^3.7.1",
+    "jsdom": "^26.0.0"
+  }
+}
