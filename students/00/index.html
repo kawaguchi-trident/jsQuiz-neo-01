@@ -32,6 +32,23 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script>
       //ここに書いたJavaScriptを書いてください。
+      //vanilla JavaScriptで書く
+      const trident = document.getElementById("trident");
+      const red = document.querySelector(".red");
+      const blue = document.querySelector(".blue");
+      const orange = document.querySelector(".orange");
+
+      red.addEventListener("click", function () {
+        trident.className = "school colorRed";
+      });
+
+      blue.addEventListener("click", function () {
+        trident.className = "school colorBlue";
+      });
+
+      orange.addEventListener("click", function () {
+        trident.className = "school colorOrange";
+      });
     </script>
   </body>
 </html>
