@@ -114,17 +114,13 @@ jobs:
               hint = 'クリックした色に応じて、#trident のクラスを正しく切り替えてください。';
             }
           } else {
-            hint = `### 模範回答（jQuery）
-
-            \`\`\`js
-            ${jqueryAnswer}
-            \`\`\`
-
-            ### 模範回答（Vanilla JS）
-
-            \`\`\`js
-            ${vanillaAnswer}
-            \`\`\``;
+            hint =
+              '### 模範回答（jQuery）\n\n```js\n' +
+              jqueryAnswer +
+              '\n```\n\n' +
+              '### 模範回答（Vanilla JS）\n\n```js\n' +
+              vanillaAnswer +
+              '\n```';
           }
 
           let body = '';
