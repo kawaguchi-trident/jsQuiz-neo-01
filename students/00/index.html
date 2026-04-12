@@ -33,11 +33,15 @@
     <script>
       //ここに書いたJavaScriptを書いてください。
       $("li.red").on("click", function () {
-        $("#trident").removeClass("colorBlue colorOrange").addClass("colorRed");
+        $("#trident").addClass("colorRed");
+      });
+
+      $("li.blue").on("click", function () {
+        $("#trident").addClass("colorBlue");
       });
 
       $("li.orange").on("click", function () {
-        $("#trident").removeClass("colorRed colorBlue").addClass("colorOrange");
+        $("#trident").addClass("colorOrange");
       });
     </script>
   </body>
