@@ -2,15 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
-const studentId = process.argv[2] || '00';
-const filePath = path.join(process.cwd(), 'students', studentId, 'index.html');
+const filePath = path.join(process.cwd(), 'index.html');
 const html = fs.readFileSync(filePath, 'utf-8');
 
-// 学生ファイルから最後の <script> の中身だけを取り出す
 const scriptMatches = [...html.matchAll(/<script(?:[^>]*)>([\s\S]*?)<\/script>/gi)];
 const studentScript = scriptMatches.length > 0 ? scriptMatches[scriptMatches.length - 1][1] : '';
 
-// DOM本体は script を除いた状態で作る
 const htmlWithoutScripts = html.replace(/<script(?:[^>]*)>[\s\S]*?<\/script>/gi, '');
 
 const dom = new JSDOM(htmlWithoutScripts, {
@@ -27,7 +24,6 @@ const $ = require('jquery');
 window.$ = $;
 window.jQuery = $;
 
-// 学生の JavaScript を、jQuery をセットした後で実行
 window.eval(studentScript);
 
 const target = window.document.querySelector('#trident');
