@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
-const studentId = '00';
+const studentId = process.argv[2] || '00';
 const filePath = path.join(process.cwd(), 'students', studentId, 'index.html');
 const html = fs.readFileSync(filePath, 'utf-8');
 
