@@ -3,7 +3,7 @@ name: Check Quiz 01
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-
+  workflow_dispatch:
 jobs:
   check:
     runs-on: ubuntu-latest
