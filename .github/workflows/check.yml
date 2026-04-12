@@ -42,7 +42,7 @@ jobs:
           node scripts/check.js ${{ steps.detect.outputs.student_id }} > result.txt 2>&1
         continue-on-error: true
 
-            - name: 判定結果をPRにコメント
+      - name: 判定結果をPRにコメント
         uses: actions/github-script@v7
         env:
           STUDENT_ID: ${{ steps.detect.outputs.student_id }}
