@@ -45,6 +45,10 @@
       $('#trident')//nome da escola
         .removeClass('colorRed colorBlue colorOrange')//remover as cores, sem ela a cor nao e removida e nao pode ser mudada
         .addClass('color' + color.charAt(0).toUpperCase() + color.slice(1));
+      //*muito dificil* exemplo: no css as cores tao como 'color : red;' entao vai ficar
+      //'color' primeira letra color.charAt(0) que seria 'r'
+      //e pra fazer a letras ficar 大文字 tem que usar '.toUpperCase()' que seria 'R'transforma a primeira letra em maiosculo
+      //as ultimas letras seria 'color.slice(1)' que quer dizer 'ed'
     });
 
   </script>
