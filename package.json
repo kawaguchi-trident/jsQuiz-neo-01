@@ -2,11 +2,7 @@
   "name": "jsquiz-neo-01",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "check": "node .github/scripts/check.js"
-  },
-  "dependencies": {
-    "jquery": "^3.7.1",
-    "jsdom": "^26.0.0"
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
   }
 }
