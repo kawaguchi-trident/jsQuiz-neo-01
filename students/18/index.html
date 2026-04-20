@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>JavaScriptクイズ①</title>
+</head>
+
+<body>
+  <p id="trident" class="school">トライデントコンピュータ専門学校</p>
+  <ul>
+    <li class="red">赤</li>
+    <li class="blue">青</li>
+    <li class="orange">オレンジ</li>
+  </ul>
+
+  <style>
+    #trident {
+      font-weight: bold;
+      font-size: 1.5em;
+    }
+
+    .colorRed {
+      color: red;
+    }
+
+    .colorBlue {
+      color: blue;
+    }
+
+    .colorOrange {
+      color: orange;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+  <script>
+    //ここに書いたJavaScriptのみ送ってください。
+    $('li').on('click', function () {
+      //lista (vermelho,azul,laranja)
+      const color = $(this).attr('class');
+      $('#trident')//nome da escola
+        .removeClass('colorRed colorBlue colorOrange')//remover as cores, sem ela a cor nao e removida e nao pode ser mudada
+        .addClass('color' + color.charAt(0).toUpperCase() + color.slice(1));
+      //*muito dificil* exemplo: no css as cores tao como 'color : red;' entao vai ficar
+      //'color' primeira letra color.charAt(0) que seria 'r'
+      //e pra fazer a letras ficar 大文字 tem que usar '.toUpperCase()' que seria 'R'transforma a primeira letra em maiosculo
+      //as ultimas letras seria 'color.slice(1)' que quer dizer 'ed'
+    });
+
+  </script>
+</body>
+
+</html>
